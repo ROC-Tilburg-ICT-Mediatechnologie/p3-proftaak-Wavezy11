@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bus Informatie Scherm</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="container">
+    <h1>Roc Tilburg Bus Informatie Scherm</h1>
+    <div class="departure-info">
+        <h2>Eerstvolgende haltes</h2>
+        <div class="tijd"></div>
+        <ul id="departure-list"></ul>
+        <div id="location-info"></div> 
+    </div>
+    <button id="announce-button">Aankondigen</button>
+    <button onclick="getLocation()">Get My Location</button>
+</div>
+<script>
+    const apiKey = 'AIzaSyDhKQOHM6_HOqjEZrAta79n_EtMbtrGHT4';
+    const ttsUrl = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`;
+
+    document.getElementById("   nce-button").addEventListener("click", announceDepartures);
+
+    async function announceDepartures() {
+        const now = new Date();
+        const hours = now.getHours();
+        let greetingMessage = '';
+
+        if (hours < 12) {
+            greetingMessage = 'Goedemorgen';
+        } else if (hours < 18) {
+            greetingMessage = 'Goedemiddag';
+        } else {
+            greetingMessage = 'Goedenavond';
+        }
+
+        const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        const departureData = generateMockDepartureData(now.getHours(), now.getMinutes());
+
+        let textToSpeak = `${greetingMessage}. Het is nu ${currentTime}. Welkom in de bus. De bus rijdt langs: `;
+        departureData.forEach((departure, index) => {
+            textToSpeak += `gebouw ${String.fromCharCode(65 + index)}`;
+            if (index < departureData.length - 1) {
+                textToSpeak += ", daarna naar ";
+            } else {
+                textToSpeak += " als eindbestemming. Fijne reis!";
+            }
+        });
+
+        await speakText(textToSpeak);
+
+ 
+        getLocation();
+    }
+
+    function generateMockDepartureData(hour, minute) {
+        const departureData = [];
+        let departureTime = new Date();
+        departureTime.setHours(hour, minute);
+
+        for (let i = 0; i < 3; i++) {
+            const nextDepartureTime = new Date(departureTime.getTime() + (i * 3 * 60 * 1000)); 
+            const departureMinutes = (i + 1) * 3; 
+            departureData.push({ minutes: departureMinutes, destination: `Gebouw ${String.fromCharCode(65 + i)}` });
+        }
+
+        return departureData;
+    }
+
+    async function speakText(text) {
+        const requestBody = JSON.stringify({
+            input: { text: text },
+            voice: { languageCode: 'nl-NL', name: 'nl-NL-Standard-C' },
+            audioConfig: { audioEncoding: 'MP3' }
+        });
+
+        const response = await fetch(ttsUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: requestBody
+        });
+
+        const responseData = await response.json();
+        const audioContent = responseData.audioContent;
+        playAudio(audioContent);
+    }
+
+    function playAudio(audioContent) {
+        const audio = new Audio(`data:audio/mp3;base64,${audioContent}`);
+        audio.play();
+    }
+
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition);
+        } else {
+            document.getElementById("location-info").textContent = "Geolocation wordt niet ondersteund door deze browser.";
+        }
+    }
+
+    function showPosition(position) {
+        var userLatitude = position.coords.latitude;
+        var userLongitude = position.coords.longitude;
+        var buildingA = { latitude: 51.572060193040585, longitude: 5.078479128225566 };
+        var buildingB = { latitude: 51.57229538602819, longitude: 5.078881056049157 };
+        var buildingC = { latitude: 51.57234587928005, longitude: 5.078395749575348 };
+
+        var distanceA = Math.sqrt(Math.pow(userLatitude - buildingA.latitude, 2) + Math.pow(userLongitude - buildingA.longitude, 2));
+        var distanceB = Math.sqrt(Math.pow(userLatitude - buildingB.latitude, 2) + Math.pow(userLongitude - buildingB.longitude, 2));
+        var distanceC = Math.sqrt(Math.pow(userLatitude - buildingC.latitude, 2) + Math.pow(userLongitude - buildingC.longitude, 2));
+
+        var closestBuilding = "";
+        var minDistance = Math.min(distanceA, distanceB, distanceC);
+
+        if (minDistance === distanceA) {
+            closestBuilding = "Gebouw A";
+        } else if (minDistance === distanceB) {
+            closestBuilding = "Gebouw B";
+        } else {
+            closestBuilding = "Gebouw C";
+        }
+
+      
+        document.getElementById("location-info").textContent = `Je bent nu bij ${closestBuilding}.`;
+    }
+</script>
+<script src="tijd.js"></script>
+<script src="gebouw.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,76 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0; 
+  padding: 20px;
+}
+
+.container {
+  position: relative; 
+  max-width: 800px;
+  margin: 0 auto;
+  
+  background-color: #fff; 
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+  padding: 20px;
+}
+
+.tijd {
+  position: absolute; 
+  top: 20px;
+  right: 20px;
+  top: 14vh;
+  height: 50px;
+  width: 105px;
+  border: 1px solid black;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 45px; 
+  background-color: rgb(82, 82, 214);
+  color: white;
+}
+
+.departure-info {
+  border: 1px solid #ccc;
+  padding: 20px;
+  border-radius: 5px;
+  background-color: #f9f9f9; 
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  margin-bottom: 10px;
+}
+
+h1 {
+  text-align: center;
+}
+
+h2 {
+  margin-top: 0;
+}
+
+
+
+.bar {
+  height: 50px;
+  width: 39vw;
+  background-color: lightgreen;
+  left: 30.5vw;
+  top: 20vh;
+  position: absolute;
+}
+.halte {
+  color: black;
+  line-height: 3px;
+  left: 2vw;
+  position: absolute;
+  font-size: 25px;
+}
+.Locationnow {
+  color: white;
+}
